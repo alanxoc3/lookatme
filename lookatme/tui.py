@@ -34,6 +34,10 @@ def root_urwid_widget(to_wrap):
     """
     return to_wrap
 
+@contrib_first
+def transition_slide(next_slide, prev_slide):
+    """Contrib can override this to do something on slide transitions."""
+    pass
 
 class SlideRenderer(threading.Thread):
     daemon = True
@@ -154,6 +158,10 @@ class SlideRenderer(threading.Thread):
         # may add extra metadata to the token itself. For example, list rendering
         # uses this to determine the max indent size for each level.
         tokens = to_render.tokens
+
+        for token in tokens:
+            token['slide'] = slide_num
+
         self._render_tokens(tokens)
         res = self._render_tokens(tokens)
 
@@ -227,6 +235,8 @@ class MarkdownTui(urwid.Frame):
             self.top_spacing_box,
             self.bottom_spacing_box,
         )
+
+        transition_slide(0, -1)
 
     def prep_pres(self, pres, start_idx=0):
         """Prepare the presentation for displaying/use
@@ -339,6 +349,7 @@ class MarkdownTui(urwid.Frame):
 
         if slide_direction != 0:
             new_slide_num = self.curr_slide.number + slide_direction
+
             if new_slide_num < 0:
                 new_slide_num = 0
             elif new_slide_num >= len(self.pres.slides):
@@ -347,6 +358,7 @@ class MarkdownTui(urwid.Frame):
             if new_slide_num == self.curr_slide.number:
                 return
 
+            transition_slide(new_slide_num, self.curr_slide.number)
             self.curr_slide = self.pres.slides[new_slide_num]
             self.update()
             return

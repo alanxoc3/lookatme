@@ -12,6 +12,7 @@ import lookatme.ascii_art
 from lookatme.exceptions import IgnoredByContrib
 import lookatme.prompt
 from . import terminal
+from . import script
 from . import file_loader
 
 
